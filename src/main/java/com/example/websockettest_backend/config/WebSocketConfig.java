@@ -12,7 +12,10 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompCommand;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,7 +50,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws/chat")
                 .setAllowedOriginPatterns("*") // 모든 origin 허용
                 .withSockJS()
-                .setSuppressCors(true);// Fallback options for browsers not supporting WebSocket
+                .setSuppressCors(true)
+                .setSessionCookieNeeded(false)
+                .setClientLibraryUrl("https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js");// Fallback options for browsers not supporting WebSocket
     }
 
     @Override
@@ -57,6 +62,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(
+                        message, StompHeaderAccessor.class
+                );
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    logger.info("Processing CONNECT command");
                 logger.info("Received WebSocket message: {}", message);
 
                 // Extract authentication token from headers
@@ -84,7 +94,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         SecurityContextHolder.clearContext();
                     }
                 }
-
+                }
                 return message;
             }
         });

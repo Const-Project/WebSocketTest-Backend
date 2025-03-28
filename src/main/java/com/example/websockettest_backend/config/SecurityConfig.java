@@ -34,8 +34,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/ws/chat/**", "/error").permitAll()  // WebSocket 엔드포인트 추가
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/**", "/ws/chat/**", "/error","/ws/**","/ws/chat/info/**","/api/chat/**").permitAll()  // WebSocket 엔드포인트 추가
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -58,7 +57,7 @@ public class SecurityConfig {
         configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 모든 origin 허용
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(false); // credentials 비활성화
+        configuration.setAllowCredentials(true); // credentials 비활성화
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

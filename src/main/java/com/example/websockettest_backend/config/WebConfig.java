@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("*") // 모든 origin 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false); // credentials 비활성화
+                .allowCredentials(true); // credentials 비활성화
     }
 }
 
