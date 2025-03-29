@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,9 +33,10 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+                .headers((headers)->headers.xssProtection(Customizer.withDefaults()).contentSecurityPolicy(Customizer.withDefaults()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/**", "/ws/chat/**", "/error","/ws/**","/ws/chat/info/**","/api/chat/**").permitAll()  // WebSocket 엔드포인트 추가
+                        .requestMatchers("/api/auth/**", "/ws/chat/**", "/error","/ws/**","/ws/chat/info/**","/api/chat/**").permitAll().anyRequest().authenticated()  // WebSocket 엔드포인트 추가
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
